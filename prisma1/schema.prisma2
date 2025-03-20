@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "client/corp"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL_CORP")
+}
+
+model Capa_op {
+  numero_op       Int  @unique    
+  createdAt       DateTime  
+
+
+  @@map("capa_op")
+}

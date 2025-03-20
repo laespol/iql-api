@@ -1,0 +1,325 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "client/iql"
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_IQL")
+}
+
+model Usuario {
+  idusuario       Int       @id @default(autoincrement())
+  nome            String    @db.VarChar(100)
+  email           String    @db.VarChar(100)
+  cpf             String?   @db.VarChar(50)
+  dtnascimento    DateTime? @db.Date
+  sexo            String?   @db.VarChar(1)
+  idusercreateAt  Int
+  createdAt       DateTime  @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime? @updatedAt
+  status          String    @default("A") @db.VarChar(1)
+  senha           String
+  trocasenha      Boolean   @default(true)
+  iddepartamento  Int
+  idmenu          Int       @default(1)
+  celular         String?   @db.VarChar(20)
+  ramaln          String?   @db.VarChar(20)
+  idnivel         Int       @default(1)
+  nivel           Nivel     @relation(fields: [idnivel], references: [idnivel])
+  chatid          String?   @default("0")
+  ti              Boolean   @default(false)
+  contrato        Boolean   @default(false)
+  contratost      Boolean   @default(false)
+  menu            Menu      @relation(fields: [idmenu], references: [idmenu])
+  idunidade       Int       @default(1)
+  unidade         Unidade   @relation(fields: [idunidade], references: [idunidade])
+  vtodoscontratos Boolean   @default(false)
+  vtodoshoraextra Boolean   @default(false)
+  ccontratos      Boolean   @default(false)
+  choraextra      Boolean   @default(false)
+
+  @@index([email])
+  @@index([iddepartamento], map: "usuario_iddepartamento_fkey")
+  @@index([idmenu], map: "usuario_idmenu_fkey")
+  @@index([idnivel], map: "usuario_idnivel_fkey")
+  @@map("usuario")
+}
+
+model Nivel {
+  idnivel         Int       @id @default(autoincrement())
+  nome            String    @db.VarChar(50)
+  idusercreateAt  Int
+  createdAt       DateTime  @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime? @updatedAt
+  status          String    @default("A") @db.VarChar(1)
+  Usuario         Usuario[]
+
+  @@map("nivel")
+}
+
+model Login {
+  idlogin   Int      @id @default(autoincrement())
+  email     String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @ignore
+  status    String   @default("A") @db.VarChar(1)
+  respsend  Int
+  iporigem  String   @db.VarChar(20)
+
+  @@map("login")
+}
+
+model Menu {
+  idmenu          Int        @id @default(autoincrement())
+  idusercreateAt  Int
+  createdAt       DateTime   @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime?  @updatedAt
+  status          String     @default("A") @db.VarChar(1)
+  nome            String     @db.VarChar(30)
+  Menuitem        Menuitem[]
+  Usuario         Usuario[]
+
+  @@map("menu")
+}
+
+model Menuitem {
+  idmenuitem      Int       @id @default(autoincrement())
+  idmenu          Int
+  seq             Int
+  titulo          String    @db.VarChar(30)
+  url             String    @db.VarChar(200)
+  icon            String    @db.VarChar(30)
+  idusercreateAt  Int
+  createdAt       DateTime  @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime? @updatedAt
+  status          String    @default("A") @db.VarChar(1)
+  menu            Menu      @relation(fields: [idmenu], references: [idmenu])
+
+  @@index([idmenu], map: "menuitem_idmenu_fkey")
+  @@map("menuitem")
+}
+
+model Coluna {
+  idcoluna        Int             @id @default(autoincrement())
+  programa        String          @db.VarChar(50)
+  field           String
+  header          String
+  style           String
+  type            String
+  agregado1       String?
+  agregado2       String?
+  idusercreateAt  Int
+  createdAt       DateTime        @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime?       @updatedAt
+  status          String          @default("A") @db.VarChar(1)
+  ordem           Int             @default(0)
+  ordena          String          @default("true")
+  filtra          Boolean         @default(false)
+  fixa            Boolean         @default(false)
+  Usuariocoluna   Usuariocoluna[]
+
+  @@map("coluna")
+}
+
+model Usuariocoluna {
+  idusuariocoluna Int       @id @default(autoincrement())
+  idcoluna        Int       @default(0)
+  idusercreateAt  Int
+  createdAt       DateTime  @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime? @updatedAt
+  status          String    @default("A") @db.VarChar(1)
+  idusuario       Int
+  coluna          Coluna    @relation(fields: [idcoluna], references: [idcoluna])
+
+  @@map("usuariocoluna")
+}
+
+model Unidade {
+  idunidade       Int       @id @default(autoincrement())
+  nome            String    @db.VarChar(30)
+  idusercreateAt  Int
+  createdAt       DateTime  @default(now())
+  iduserupdatedAt Int?
+  updatedAt       DateTime? @updatedAt
+  status          String    @default("A") @db.VarChar(1)
+  idimovel        Int       @default(5)
+  imagem1         Bytes?
+  imagem2         Bytes?
+  Usuario         Usuario[]
+
+  @@map("unidade")
+}
+
+model Custoiql {
+  id                   Int       @id @default(autoincrement())
+  numero_op            String    @db.VarChar(45)
+  produzido            String?   @db.VarChar(45)
+  data_finalizacao     DateTime?
+  codigo_produto       String?   @db.VarChar(45)
+  desc_tecnica         String?   @db.VarChar(45)
+  quantidade_final     Decimal?  @default(0.00000)
+  descricao            String?   @db.VarChar(45)
+  valor_unitario       Decimal?  @default(0.00000)
+  custo                Decimal?  @default(0.00000)
+  quantidade_produzida Decimal?  @default(0.00000)
+
+  @@map("custoiql")
+}
+
+model Inventario {
+  id_inv             Int       @id @default(autoincrement())
+  produto            String    @db.VarChar(255)
+  coletor            String?   @db.VarChar(45)
+  quantidade         Decimal?  @default(0.00000)
+  cod_produto        String?   @db.VarChar(100)
+  Codigo_tipo_item   String?   @db.VarChar(45)
+  lote               String?   @db.VarChar(100)
+  lote_original      String?   @db.VarChar(45)
+  Lote_interno       String?   @db.VarChar(45)
+  Data_validade_prod DateTime?
+  Desc_tecnica       String?   @db.VarChar(100)
+  Data               DateTime?
+  Unidade_estoque    String?   @db.VarChar(45)
+  Unidade_compra     String?   @db.VarChar(45)
+  codigo_embalagem   String?   @db.VarChar(45)
+  estoque            Decimal?  @default(0.00000)
+
+  @@map("inventario")
+}
+
+model Sendmail {
+  idsendmail            Int       @id @default(autoincrement())
+  destinatario          String    @db.VarChar(1000)
+  html                  Bytes
+  subject               String    @db.VarChar(200)
+  idusercreateAt        Int
+  createdAt             DateTime  @default(now())
+  iduserupdatedAt       Int?
+  updatedAt             DateTime? @updatedAt
+  status                String    @default("A") @db.VarChar(1)
+  idsolicitante         Int?
+  idusuarioaprovacao    Int?
+  idusuariocotacao      Int?
+  idusuarioaprovacaodir Int?
+  idusuariocompra       Int?
+  idusuarioentrega      Int?
+  idcompra              Int?
+  attachments           Bytes?
+
+  @@map("sendmail")
+}
+
+model Resumocompras {
+  id                      Int      @id @default(autoincrement())
+  Apelido_empresa         String?  @db.VarChar(200)
+  Apelido_estabelecimento String?  @db.VarChar(200)
+  Codigo_produto          String?  @db.VarChar(200)
+  Unidade_estoque         String?  @db.VarChar(200)
+  Unidade_compra          String?  @db.VarChar(200)
+  Desc_tecnica            String?  @db.VarChar(200)
+  Estoque_minimo          Decimal? @default(0.00000)
+  Lote_compra             Decimal? @default(0.00000)
+  mes1                    Decimal? @default(0.00000)
+  mes2                    Decimal? @default(0.00000)
+  mes3                    Decimal? @default(0.00000)
+  mes4                    Decimal? @default(0.00000)
+  mes5                    Decimal? @default(0.00000)
+  mes6                    Decimal? @default(0.00000)
+  mes7                    Decimal? @default(0.00000)
+  mes8                    Decimal? @default(0.00000)
+  mes9                    Decimal? @default(0.00000)
+  mes10                   Decimal? @default(0.00000)
+  mes11                   Decimal? @default(0.00000)
+  mes12                   Decimal? @default(0.00000)
+  compras                 Decimal? @default(0.00000)
+  opcadastradas           Decimal? @default(0.00000)
+  saldoestoque            Decimal? @default(0.00000)
+  coleta                  Decimal? @default(0.00000)
+
+  @@map("resumocompras")
+}
+
+model Compras {
+  idcompras         Int       @id @default(autoincrement())
+  chavearquivo      String?   @db.VarChar(50)
+  porcentagem       Int?
+  codigo_produto    String?   @db.VarChar(45)
+  desc_tecnica      String?   @db.VarChar(200)
+  saldo             Decimal?  @default(0.00000)
+  consumo12         Decimal?  @default(0.00000)
+  mediaconsumo      Decimal?  @default(0.00000)
+  opcompra          Decimal?  @default(0.00000)
+  opcompraEntregue  Decimal?  @default(0.00000)
+  opfinalizada      Decimal?  @default(0.00000)
+  opemprocesso      Decimal?  @default(0.00000)
+  opcadastrada      Decimal?  @default(0.00000)
+  opcoleta          Decimal?  @default(0.00000)
+  totcompras        Decimal?  @default(0.00000)
+  totconsumo        Decimal?  @default(0.00000)
+  saldoatual        Decimal?  @default(0.00000)
+  valorultimacompra Decimal?  @default(0.00000)
+  dataultimacompra  DateTime?
+  saldometa         Decimal?  @default(0.00000)
+  compra            Decimal?  @default(0.00000)
+  datacoleta        DateTime?
+  opcadastrada15    Decimal?  @default(0.00000)
+  opcoleta15        Decimal?  @default(0.00000)
+  totcompras15      Decimal?  @default(0.00000)
+  totconsumo15      Decimal?  @default(0.00000)
+  saldoatual15      Decimal?  @default(0.00000)
+  opcadastrada30    Decimal?  @default(0.00000)
+  opcoleta30        Decimal?  @default(0.00000)
+  totcompras30      Decimal?  @default(0.00000)
+  totconsumo30      Decimal?  @default(0.00000)
+  saldoatual30      Decimal?  @default(0.00000)
+  opcompra15        Decimal?  @default(0.00000)
+  opcompra30        Decimal?  @default(0.00000)
+
+  @@map("compras")
+}
+
+model Necessidade {
+  idnecessidade    Int       @id @default(autoincrement())
+  dtrelatorio      DateTime
+  codigo_produto   String?   @db.VarChar(45)
+  desc_tecnica     String?   @db.VarChar(200)
+  dtultcompra      DateTime?
+  vlrultcompra     Decimal?  @default(0.00000)
+  saldoinv         Decimal?  @default(0.00000)
+  dtinventario     DateTime?
+  opfinalizada     Decimal?  @default(0.00000)
+  opemprocesso     Decimal?  @default(0.00000)
+  compraentregue   Decimal?  @default(0.00000)
+  compraparcial    Decimal?  @default(0.00000)
+  saldoatual       Decimal?  @default(0.00000)
+  compraprevista   Decimal?  @default(0.00000)
+  opcadastrada     Decimal?  @default(0.00000)
+  opcoleta         Decimal?  @default(0.00000)
+  dtcoleta         DateTime?
+  saldonecessidade Decimal?  @default(0.00000)
+  dtnecessidade    DateTime?
+  vlrpedido        Decimal?  @default(0.00000)
+  vlrcompra        Decimal?  @default(0.00000)
+  stcompra         Boolean?  @default(false)
+  mediaconsumo     Decimal?  @default(0.00000)
+  processo         String?   @db.VarChar(1)
+
+  @@map("necessidade")
+}
+
+model Painel {
+  idpainel  Int    @id @default(autoincrement())
+  idnivel   Int
+  nrpainel  Int
+  status    String @default("A") @db.VarChar(1)
+  descricao String @db.VarChar(45)
+
+  @@map("painel")
+}
